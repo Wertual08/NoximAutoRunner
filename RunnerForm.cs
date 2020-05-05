@@ -138,6 +138,7 @@ namespace NoximAutoRunner
 
         private void BuildGraph()
         {
+            GraphDirty = false;
             ResultsChart.Series.Clear();
             if (ExecutionResults == null) return;
             int ind = ResultsListBox.SelectedIndex;
@@ -184,7 +185,8 @@ namespace NoximAutoRunner
             }
             catch (Exception ex)
             {
-
+                MessageBox.Show(this, ex.ToString(), "Error: Can not load configuration file.",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
@@ -335,7 +337,8 @@ namespace NoximAutoRunner
             }
             catch (Exception ex)
             {
-
+                MessageBox.Show(this, ex.ToString(), "Error: Can not save configuration file.",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 

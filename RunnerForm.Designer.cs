@@ -29,9 +29,9 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea3 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend3 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series3 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.ResultsChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.ExecutableTextBox = new System.Windows.Forms.TextBox();
             this.ControlsSplitContainer = new System.Windows.Forms.SplitContainer();
@@ -61,6 +61,8 @@
             this.LogTabPage = new System.Windows.Forms.TabPage();
             this.LogTextBox = new System.Windows.Forms.TextBox();
             this.MessagePump = new System.Windows.Forms.Timer(this.components);
+            this.ChartPropertyGrid = new System.Windows.Forms.PropertyGrid();
+            this.ConfigTabPage = new System.Windows.Forms.TabPage();
             ((System.ComponentModel.ISupportInitialize)(this.ResultsChart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ControlsSplitContainer)).BeginInit();
             this.ControlsSplitContainer.Panel1.SuspendLayout();
@@ -73,35 +75,38 @@
             this.ResultTabControl.SuspendLayout();
             this.ChartTabPage.SuspendLayout();
             this.LogTabPage.SuspendLayout();
+            this.ConfigTabPage.SuspendLayout();
             this.SuspendLayout();
             // 
             // ResultsChart
             // 
             this.ResultsChart.BackColor = System.Drawing.Color.DimGray;
-            chartArea3.AxisX.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
-            chartArea3.AxisX.LabelStyle.Format = "F2";
-            chartArea3.AxisX.MaximumAutoSize = 10F;
-            chartArea3.AxisX.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 16F);
-            chartArea3.AxisX2.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
-            chartArea3.AxisX2.MaximumAutoSize = 10F;
-            chartArea3.AxisY.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
-            chartArea3.AxisY.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 16F);
-            chartArea3.AxisY2.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
-            chartArea3.BackColor = System.Drawing.Color.Gray;
-            chartArea3.Name = "ChartArea1";
-            this.ResultsChart.ChartAreas.Add(chartArea3);
+            chartArea1.AxisX.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
+            chartArea1.AxisX.LabelStyle.Format = "F2";
+            chartArea1.AxisX.MaximumAutoSize = 10F;
+            chartArea1.AxisX.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 16F);
+            chartArea1.AxisX2.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
+            chartArea1.AxisX2.MaximumAutoSize = 10F;
+            chartArea1.AxisY.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
+            chartArea1.AxisY.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 16F);
+            chartArea1.AxisY2.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
+            chartArea1.BackColor = System.Drawing.Color.Gray;
+            chartArea1.Name = "ChartArea1";
+            this.ResultsChart.ChartAreas.Add(chartArea1);
             this.ResultsChart.Dock = System.Windows.Forms.DockStyle.Fill;
-            legend3.BackColor = System.Drawing.Color.Gray;
-            legend3.Name = "Legend1";
-            this.ResultsChart.Legends.Add(legend3);
+            legend1.BackColor = System.Drawing.Color.Gray;
+            legend1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
+            legend1.IsTextAutoFit = false;
+            legend1.Name = "Legend1";
+            this.ResultsChart.Legends.Add(legend1);
             this.ResultsChart.Location = new System.Drawing.Point(3, 3);
             this.ResultsChart.Name = "ResultsChart";
             this.ResultsChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Excel;
-            series3.ChartArea = "ChartArea1";
-            series3.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series3.Legend = "Legend1";
-            series3.Name = "Series1";
-            this.ResultsChart.Series.Add(series3);
+            series1.ChartArea = "ChartArea1";
+            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
+            series1.Legend = "Legend1";
+            series1.Name = "Series1";
+            this.ResultsChart.Series.Add(series1);
             this.ResultsChart.Size = new System.Drawing.Size(777, 513);
             this.ResultsChart.TabIndex = 0;
             this.ResultsChart.Text = "chart1";
@@ -416,6 +421,7 @@
             // 
             this.ResultTabControl.Controls.Add(this.ChartTabPage);
             this.ResultTabControl.Controls.Add(this.LogTabPage);
+            this.ResultTabControl.Controls.Add(this.ConfigTabPage);
             this.ResultTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ResultTabControl.Location = new System.Drawing.Point(0, 0);
             this.ResultTabControl.Name = "ResultTabControl";
@@ -461,6 +467,25 @@
             this.MessagePump.Enabled = true;
             this.MessagePump.Tick += new System.EventHandler(this.MessagePump_Tick);
             // 
+            // ChartPropertyGrid
+            // 
+            this.ChartPropertyGrid.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.ChartPropertyGrid.Location = new System.Drawing.Point(0, 0);
+            this.ChartPropertyGrid.Name = "ChartPropertyGrid";
+            this.ChartPropertyGrid.SelectedObject = this.ResultsChart;
+            this.ChartPropertyGrid.Size = new System.Drawing.Size(783, 519);
+            this.ChartPropertyGrid.TabIndex = 1;
+            // 
+            // ConfigTabPage
+            // 
+            this.ConfigTabPage.Controls.Add(this.ChartPropertyGrid);
+            this.ConfigTabPage.Location = new System.Drawing.Point(4, 22);
+            this.ConfigTabPage.Name = "ConfigTabPage";
+            this.ConfigTabPage.Size = new System.Drawing.Size(783, 519);
+            this.ConfigTabPage.TabIndex = 2;
+            this.ConfigTabPage.Text = "Chart configuratoin";
+            this.ConfigTabPage.UseVisualStyleBackColor = true;
+            // 
             // RunnerForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -484,6 +509,7 @@
             this.ChartTabPage.ResumeLayout(false);
             this.LogTabPage.ResumeLayout(false);
             this.LogTabPage.PerformLayout();
+            this.ConfigTabPage.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -519,6 +545,8 @@
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.TextBox NameTextBox;
         private System.Windows.Forms.Button ExportButton;
+        private System.Windows.Forms.TabPage ConfigTabPage;
+        private System.Windows.Forms.PropertyGrid ChartPropertyGrid;
     }
 }
 
