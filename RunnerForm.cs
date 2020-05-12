@@ -1,4 +1,5 @@
-﻿using NoximAutoRunner.Properties;
+﻿using Microsoft.SqlServer.Server;
+using NoximAutoRunner.Properties;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -18,121 +19,74 @@ namespace NoximAutoRunner
 {
     public partial class RunnerForm : Form
     {
-        private MessageQueue LogQueue = new MessageQueue();
-        private BackgroundWorker[] ExecutionWorkers;
-        private int ThreadsCount;
-        private int GroupsCount, ResultsCount;
-        private bool GraphDirty = false;
-        private ExecutionResult[][] ExecutionResults;
-        private string[] ExecutionNames;
-        private decimal[] ExecutionSteps;
-        private struct ExecutionResult
+        private struct PointD
         {
-            public decimal TotalReceivedPackets;
-            public decimal TotalReceivedFlits;
-            public decimal ReceivedIdealFlitsRatio;
-            public decimal LastTimeFlitReceived;
-            public decimal GlobalAverageDelayCycles;
-            public decimal MaxDelayCycles;
-            public decimal NetworkThroughputFlitsCycle;
-            public decimal AverageIPThroughputFlitsCycleIP;
-            public decimal TotalEnergyJ;
-            public decimal DynamicEnergyJ;
-            public decimal StaticEnergyJ;
-            public void Parse(string str)
+            public double X, Y;
+            public PointD(double x, double y)
             {
-                int ind;
-                var entries = new string[11];
-                entries[0] = "% Total received packets: ";
-                entries[1] = "% Total received flits: ";
-                entries[2] = "% Received/Ideal flits Ratio: ";
-                entries[3] = "% Last time flit received: ";
-                entries[4] = "% Global average delay (cycles): ";
-                entries[5] = "% Max delay (cycles): ";
-                entries[6] = "% Network throughput (flits/cycle): ";
-                entries[7] = "% Average IP throughput (flits/cycle/IP): ";
-                entries[8] = "% Total energy (J): ";
-                entries[9] = "% Dynamic energy (J): ";
-                entries[10] = "% Static energy (J): ";
-                if ((ind = str.IndexOf(entries[0])) >= 0 && (ind += entries[0].Length) >= 0) TotalReceivedPackets = decimal.Parse(str.Substring(ind, str.IndexOf('\n', ind) - ind), NumberStyles.Any);
-                if ((ind = str.IndexOf(entries[1])) >= 0 && (ind += entries[1].Length) >= 0) TotalReceivedFlits = decimal.Parse(str.Substring(ind, str.IndexOf('\n', ind) - ind), NumberStyles.Any);
-                if ((ind = str.IndexOf(entries[2])) >= 0 && (ind += entries[2].Length) >= 0) ReceivedIdealFlitsRatio = decimal.Parse(str.Substring(ind, str.IndexOf('\n', ind) - ind), NumberStyles.Any);
-                if ((ind = str.IndexOf(entries[3])) >= 0 && (ind += entries[3].Length) >= 0) LastTimeFlitReceived = decimal.Parse(str.Substring(ind, str.IndexOf('\n', ind) - ind), NumberStyles.Any);
-                if ((ind = str.IndexOf(entries[4])) >= 0 && (ind += entries[4].Length) >= 0) GlobalAverageDelayCycles = decimal.Parse(str.Substring(ind, str.IndexOf('\n', ind) - ind), NumberStyles.Any);
-                if ((ind = str.IndexOf(entries[5])) >= 0 && (ind += entries[5].Length) >= 0) MaxDelayCycles = decimal.Parse(str.Substring(ind, str.IndexOf('\n', ind) - ind), NumberStyles.Any);
-                if ((ind = str.IndexOf(entries[6])) >= 0 && (ind += entries[6].Length) >= 0) NetworkThroughputFlitsCycle = decimal.Parse(str.Substring(ind, str.IndexOf('\n', ind) - ind), NumberStyles.Any);
-                if ((ind = str.IndexOf(entries[7])) >= 0 && (ind += entries[7].Length) >= 0) AverageIPThroughputFlitsCycleIP = decimal.Parse(str.Substring(ind, str.IndexOf('\n', ind) - ind), NumberStyles.Any);
-                if ((ind = str.IndexOf(entries[8])) >= 0 && (ind += entries[8].Length) >= 0) TotalEnergyJ = decimal.Parse(str.Substring(ind, str.IndexOf('\n', ind) - ind), NumberStyles.Any);
-                if ((ind = str.IndexOf(entries[9])) >= 0 && (ind += entries[9].Length) >= 0) DynamicEnergyJ = decimal.Parse(str.Substring(ind, str.IndexOf('\n', ind) - ind), NumberStyles.Any);
-                if ((ind = str.IndexOf(entries[10])) >= 0 && (ind += entries[10].Length) >= 0) StaticEnergyJ = decimal.Parse(str.Substring(ind, str.IndexOf('\n', ind) - ind), NumberStyles.Any);
-            }
-            public decimal this[int i]
-            {
-                get
-                {
-                    switch (i)
-                    {
-                    case 0: return TotalReceivedPackets;
-                    case 1: return TotalReceivedFlits;
-                    case 2: return ReceivedIdealFlitsRatio;
-                    case 3: return LastTimeFlitReceived;
-                    case 4: return GlobalAverageDelayCycles;
-                    case 5: return MaxDelayCycles;
-                    case 6: return NetworkThroughputFlitsCycle;
-                    case 7: return AverageIPThroughputFlitsCycleIP;
-                    case 8: return TotalEnergyJ;
-                    case 9: return DynamicEnergyJ;
-                    case 10: return StaticEnergyJ;
-                    default: return 0m;
-                    }
-                }
-                set
-                {
-                    switch (i)
-                    {
-                        case 0: TotalReceivedPackets = value; break;
-                        case 1: TotalReceivedFlits = value; break;
-                        case 2: ReceivedIdealFlitsRatio = value; break;
-                        case 3: LastTimeFlitReceived = value; break;
-                        case 4: GlobalAverageDelayCycles = value; break;
-                        case 5: MaxDelayCycles = value; break;
-                        case 6: NetworkThroughputFlitsCycle = value; break;
-                        case 7: AverageIPThroughputFlitsCycleIP = value; break;
-                        case 8: TotalEnergyJ = value; break;
-                        case 9: DynamicEnergyJ = value; break;
-                        case 10: StaticEnergyJ = value; break;
-                    }
-                }
-            }
-            public static readonly int Count = 11;
-            static public string Title(int i)
-            {
-                switch (i)
-                {
-                    case 0: return "Total received packets";
-                    case 1: return "Total received flits";
-                    case 2: return "Received/Ideal flits Ratio";
-                    case 3: return "Last time flit received";
-                    case 4: return "Global average delay (cycles)";
-                    case 5: return "Max delay (cycles)";
-                    case 6: return "Network throughput (flits / cycle)";
-                    case 7: return "Average IP throughput (flits/ cycle / IP)";
-                    case 8: return "Total energy (J)";
-                    case 9: return "Dynamic energy (J)";
-                    case 10: return "Static energy (J)";
-                    default: return "";
-                }
+                X = x;
+                Y = y;
             }
         }
+        private MessageQueue LogQueue = new MessageQueue();
+        private List<BackgroundWorker> ExecutionWorkers = new List<BackgroundWorker>();
+        private bool GraphDirty = false;
+
+        private Dictionary<string, List<PointD>[]> ExecutionResults;
+
+        private string ExecutablePath;
+        private int GroupsCount, GroupCursor;
+        private string[] ExecutionConfigs;
+        private string[] ExecutionNames;
+        private decimal ExecutionLowerBound;
+        private decimal ExecutionProgress;
+        private decimal ExecutionStep;
+        private decimal ExecutionHigherBound;
+
         private class ThreadArguments
         {
             public string Executable;
             public string Config;
             public string Arguments;
-            public decimal LowerBound;
-            public decimal Step;
-            public decimal HigherBound;
-            public ExecutionResult[] Results;
+            public decimal Variable;
+            public int GroupIndex;
+        }
+        private class ThreadResult
+        {
+            public readonly double Variable;
+            public readonly int Group;
+            public readonly string[] Legends;
+            public readonly double[] Values;
+
+            private ThreadResult(int count, int group, double variable)
+            {
+                Variable = variable;
+                Group = group;
+                Legends = new string[count];
+                Values = new double[count];
+            }
+            public static ThreadResult Parse(string data, int group, double variable)
+            {
+                var lines = data.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+                int count = lines.Count((string l) => { return l.Trim().StartsWith("% "); });
+                if (count < 1) return null;
+                var result = new ThreadResult(count, group, variable);
+                int ptr = 0;
+                foreach (var line in lines)
+                {
+                    if (line.Trim().StartsWith("% "))
+                    {
+                        string raw = line.Trim().Substring(2).Trim();
+                        int index = raw.LastIndexOf(':');
+                        if (index < 0) return null;
+                        result.Legends[ptr] = raw.Substring(0, index);
+                        result.Values[ptr] = 0;
+                        double.TryParse(raw.Substring(index + 1), NumberStyles.Any, null, out result.Values[ptr]);
+                        ptr++;
+                    }
+                }
+                return result;
+            }
         }
         private string SettingsPath;
 
@@ -140,20 +94,20 @@ namespace NoximAutoRunner
         {
             GraphDirty = false;
             ResultsChart.Series.Clear();
-            if (ExecutionResults == null) return;
+            if (ExecutionResults == null || ResultsListBox.SelectedItem == null) return;
             int ind = ResultsListBox.SelectedIndex;
-            ResultsChart.ChartAreas[0].AxisY.Title = ExecutionResult.Title(ind);
-            for (int i = 0; i < ExecutionResults.Length; i++)
+            ResultsChart.ChartAreas[0].AxisY.Title = ResultsListBox.SelectedItem as string;
+            var results = ExecutionResults[ResultsListBox.SelectedItem as string];
+            for (int i = 0; i < GroupsCount; i++)
             {
-                var group = ExecutionResults[i];
                 var series = new Series();
                 series.ChartType = SeriesChartType.Line;
                 series.Name = ExecutionNames[i];
                 series.BorderWidth = 3;
-                
-                for (int j = 0; j < group.Length; j++)
+
+                for (int j = 0; j < results[i].Count; j++)
                 {
-                    series.Points.AddXY((double)ExecutionSteps[j], (double)group[j][ind]);
+                    series.Points.AddXY(results[i][j].X, results[i][j].Y);
                 }
                 ResultsChart.Series.Add(series);
             }
@@ -163,8 +117,7 @@ namespace NoximAutoRunner
         public RunnerForm()
         {
             InitializeComponent();
-            ResultsListBox.SelectedIndex = 0;
-            SettingsPath = Path.Combine(Directory.GetCurrentDirectory(), "config.ini");
+            SettingsPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "config.ini"));
 
             try
             {
@@ -194,106 +147,96 @@ namespace NoximAutoRunner
         {
             try
             {
-                Directory.SetCurrentDirectory(Path.GetDirectoryName(ExecutableTextBox.Text));
                 var configs = Directory.GetFiles(ConfigsTextBox.Text, FilterTextBox.Text, SearchOption.AllDirectories);
-                ExecutionWorkers = new BackgroundWorker[GroupsCount = ThreadsCount = configs.Length];
-                ExecutionResults = new ExecutionResult[ThreadsCount][];
-                ExecutionNames = new string[ThreadsCount];
+                GroupsCount = configs.Length;
+                ExecutionResults = new Dictionary<string, List<PointD>[]>();
+                ResultsListBox.Items.Clear();
+                ExecutionNames = new string[GroupsCount];
+                ExecutionConfigs = new string[GroupsCount];
 
-                for (int i = 0; i < ThreadsCount; i++) ExecutionNames[i] = Path.GetFileNameWithoutExtension(configs[i]);
-
-                var lb = LowerNumeric.Value;
-                var hb = HigherNumeric.Value;
-                var s = StepNumeric.Value;
-                ResultsCount = (int)((hb - lb) / s) + 1;
-                ExecutionSteps = new decimal[ResultsCount];
-                int j = 0;
-                for (decimal i = lb; i <= hb; i += s) ExecutionSteps[j++] = i;
-
-                for (int i = 0; i < ThreadsCount; i++)
-                    ExecutionResults[i] = new ExecutionResult[ResultsCount];
-
-                for (int i = 0; i < ThreadsCount; i++)
-                {
-                    ExecutionWorkers[i] = new BackgroundWorker();
-                    ExecutionWorkers[i].DoWork += ExecutionWorker_DoWork;
-                    ExecutionWorkers[i].RunWorkerCompleted += ExecutionWorker_RunWorkerCompleted;
-                    
-                    var args = new ThreadArguments();
-                    args.Executable = Path.GetFileName(ExecutableTextBox.Text);
-                    args.Config = configs[i];
-                    args.Arguments = ArgumentsTextBox.Text;
-                    args.LowerBound = LowerNumeric.Value;
-                    args.Step = StepNumeric.Value; 
-                    args.HigherBound = HigherNumeric.Value;
-                    args.Results = ExecutionResults[i];
-
-                    ExecutionWorkers[i].RunWorkerAsync(args);
-                    LogQueue.Put("Execution with config [" + args.Config + "] started...");
-                }
+                for (int i = 0; i < GroupsCount; i++) ExecutionNames[i] = Path.GetFileNameWithoutExtension(configs[i]);
+                for (int i = 0; i < GroupsCount; i++) ExecutionConfigs[i] = Path.GetFullPath(configs[i]);
+                ExecutionProgress = LowerNumeric.Value;
+                ExecutionLowerBound = LowerNumeric.Value;
+                ExecutionHigherBound = HigherNumeric.Value;
+                ExecutionStep = StepNumeric.Value;
+                ExecutablePath = ExecutableTextBox.Text;
 
                 StartButton.Enabled = false;
+                ThreadsManager.Start();
                 BuildGraph();
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, ex.ToString(), "Error: Can not start execution.", 
+                MessageBox.Show(this, ex.ToString(), "Error: Can not start execution.",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void ExecutionWorker_DoWork(object sender, DoWorkEventArgs e)
+        private void ExportButton_Click(object sender, EventArgs e)
         {
-            e.Result = e.Argument;
-            var args = e.Argument as ThreadArguments;
-            int j = 0;
-            for (decimal i = args.LowerBound; i <= args.HigherBound; i += args.Step)
-            {
-                Process p = new Process();
-                p.StartInfo.CreateNoWindow = true;
-                p.StartInfo.UseShellExecute = false;
-                p.StartInfo.RedirectStandardOutput = true;
-                p.StartInfo.RedirectStandardError = true;
-                p.StartInfo.FileName = args.Executable;
-                p.StartInfo.Arguments = "-config " + "\"" + args.Config + "\" " + args.Arguments.Replace("%VAR", i.ToString());
-                p.StartInfo.WorkingDirectory = Path.GetDirectoryName(args.Executable);
+            if (ExecutionResults == null || GroupsCount == 0 || ExecutionStep == 0) return;
 
-                LogQueue.Put("Starting execution with arguments [" + p.StartInfo.Arguments + "]...");
-                p.Start();
-                string s = p.StandardOutput.ReadToEnd();
-                args.Results[j++].Parse(s);
-                //LogQueue.Put(s);
-                p.WaitForExit();
-                LogQueue.Put("Execution with arguments [" + p.StartInfo.Arguments + "] finished.");
-                GraphDirty = true;
-            }
-        }
-        private void ExecutionWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
             try
             {
-                var result = e.Result as ThreadArguments;
-                ThreadsCount--;
-                LogQueue.Put("Execution with config [" + result.Config + "] finished.");
-                if (ThreadsCount <= 0)
+                using (var file = File.CreateText("exports.txt"))
                 {
-                    StartButton.Enabled = true;
-                    BuildGraph();
+                    file.Write("\t\t");
+                    foreach (var legend in ExecutionResults)
+                    {
+                        for (int i = 0; i < GroupsCount; i++)
+                            file.Write(legend.Key + "\t");
+                        file.Write("\t");
+                    }
+                    file.WriteLine();
+
+                    file.Write(NameTextBox.Text + "\t\t");
+                    for (int i = 0; i < ExecutionResults.Count; i++)
+                    {
+                        for (int j = 0; j < GroupsCount; j++)
+                            file.Write(ExecutionNames[j] + "\t");
+                        file.Write("\t");
+                    }
+                    file.WriteLine();
+
+                    int row = 0;
+                    for (decimal v = ExecutionLowerBound; v <= ExecutionHigherBound; v += ExecutionStep)
+                    {
+                        file.Write(v + "\t\t");
+
+                        foreach (var legend in ExecutionResults)
+                        {
+                            for (int i = 0; i < GroupsCount; i++)
+                            {
+                                var group = legend.Value[i];
+                                if (row >= group.Count) file.Write("-\t");
+                                else file.Write(group[row].Y + "\t");
+                            }
+                            file.Write("\t");
+                        }
+
+                        file.WriteLine();
+                        row++;
+                    }
+                }
+
+                foreach (var legend in ExecutionResults)
+                {
+                    ResultsListBox.SelectedItem = legend.Key;
+                    using (var bmp = new Bitmap(ResultsChart.ClientSize.Width, ResultsChart.ClientSize.Height))
+                    {
+                        ResultsChart.DrawToBitmap(bmp, new Rectangle(0, 0, ResultsChart.ClientSize.Width, ResultsChart.ClientSize.Height));
+                        var type = legend.Key;
+                        foreach (var c in Path.GetInvalidFileNameChars()) type = type.Replace(c, '-');
+                        bmp.Save("Graph [" + type + "].png", ImageFormat.Png);
+                    }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, ex.ToString(), "Error: Can not finish thread execution.",
+                MessageBox.Show(this, ex.ToString(), "Error: Can not export results.",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
-        }
-
-        private void MessagePump_Tick(object sender, EventArgs e)
-        {
-            string message;
-            while ((message = LogQueue.Get()) != null) 
-                LogTextBox.AppendText(message + Environment.NewLine);
-            if (GraphDirty) BuildGraph();
         }
 
         private void StepNumeric_ValueChanged(object sender, EventArgs e)
@@ -342,57 +285,123 @@ namespace NoximAutoRunner
             }
         }
 
-        private void ExportButton_Click(object sender, EventArgs e)
+        bool SubmitWork(BackgroundWorker worker)
         {
-            if (ExecutionResults == null) return;
+            if (ExecutionProgress > ExecutionHigherBound || GroupsCount < 1) return false;
 
+            var args = new ThreadArguments();
+            args.Executable = ExecutablePath;
+            args.Config = ExecutionConfigs[GroupCursor];
+            args.Arguments = ArgumentsTextBox.Text;
+            args.Variable = ExecutionProgress;
+            args.GroupIndex = GroupCursor;
+
+            GroupCursor++;
+            if (GroupCursor >= GroupsCount)
+            {
+                GroupCursor = 0;
+                ExecutionProgress += ExecutionStep;
+            }
+
+            worker.RunWorkerAsync(args);
+
+            return true;
+        }
+
+        private void ThreadsManager_Tick(object sender, EventArgs e)
+        {
+            while (ThreadsNumeric.Value > ExecutionWorkers.Count)
+            {
+                var worker = new BackgroundWorker();
+                worker.DoWork += ExecutionWorker_DoWork;
+                worker.RunWorkerCompleted += ExecutionWorker_RunWorkerCompleted;
+                ExecutionWorkers.Add(worker);
+            }
+            bool enquire_next = false;
+            for (int i = 0; i < ExecutionWorkers.Count; i++)
+            {
+                var worker = ExecutionWorkers[i];
+                if (worker.IsBusy)
+                {
+                    enquire_next = true;
+                    continue;
+                }
+                if (ThreadsNumeric.Value < ExecutionWorkers.Count) ExecutionWorkers.RemoveAt(i--);
+                else if (SubmitWork(worker))
+                {
+                    enquire_next = true;
+                }
+            }
+            if (GraphDirty) BuildGraph();
+
+            if (!enquire_next)
+            {
+                StartButton.Enabled = true;
+                ThreadsManager.Stop();
+            }
+
+        }
+        private void MessagePump_Tick(object sender, EventArgs e)
+        {
+            string message;
+            while ((message = LogQueue.Get()) != null) LogTextBox.AppendText(message + Environment.NewLine);
+        }
+
+        private void ExecutionWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            var args = e.Argument as ThreadArguments;
+
+            Process p = new Process();
+            p.StartInfo.CreateNoWindow = true;
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.RedirectStandardOutput = true;
+            p.StartInfo.RedirectStandardError = true;
+            p.StartInfo.FileName = args.Executable;
+            p.StartInfo.Arguments = "-config " + "\"" + args.Config + "\" " + args.Arguments.Replace("%VAR", args.Variable.ToString());
+            p.StartInfo.WorkingDirectory = Path.GetDirectoryName(args.Executable);
+
+            LogQueue.Put("Starting execution with arguments [" + p.StartInfo.Arguments + "]...");
+            p.Start();
+            string s = p.StandardOutput.ReadToEnd();
+
+            e.Result = ThreadResult.Parse(s, args.GroupIndex, (double)args.Variable);
+
+            p.WaitForExit();
+            LogQueue.Put("Execution with arguments [" + p.StartInfo.Arguments + "] finished.");
+
+        }
+        private void ExecutionWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
             try
             {
-                using (var file = File.CreateText("exports.txt"))
+                var result = e.Result as ThreadResult;
+                if (result == null) return;
+
+                for (int i = 0; i < result.Legends.Length; i++)
                 {
-                    file.Write("\t\t");
-                    for (int x = 0; x < GroupsCount; x++)
+                    if (!ExecutionResults.ContainsKey(result.Legends[i]))
                     {
-                        file.Write(ExecutionNames[x] + new string('\t', ExecutionResult.Count + 1));
+                        var groups = new List<PointD>[GroupsCount];
+                        for (int j = 0; j < GroupsCount; j++) groups[j] = new List<PointD>();
+                        ExecutionResults.Add(result.Legends[i], groups);
+                        var item = ResultsListBox.SelectedItem;
+                        ResultsListBox.Items.Add(result.Legends[i]);
+                        ResultsListBox.SelectedItem = item;
                     }
-                    file.WriteLine();
 
-                    file.Write(NameTextBox.Text + "\t\t");
-                    for (int x = 0; x < GroupsCount; x++)
-                    {
-                        for (int i = 0; i < ExecutionResult.Count; i++) file.Write(ExecutionResult.Title(i) + "\t");
-                        file.Write("\t");
-                    }
-                    file.WriteLine();
+                    var group = ExecutionResults[result.Legends[i]][result.Group];
 
-                    for (int y = 0; y < ResultsCount; y++)
-                    {
-                        file.Write(ExecutionSteps[y] + "\t\t");
-                        for (int x = 0; x < GroupsCount; x++)
-                        {
-                            for (int i = 0; i < ExecutionResult.Count; i++) file.Write(ExecutionResults[x][y][i] + "\t");
-                            file.Write("\t");
-                        }
-                        file.WriteLine();
-                    }
+                    int index = group.Count;
+                    while (index - 1 >= 0 && group[index - 1].X > result.Variable) index--;
+
+                    group.Insert(index, new PointD(result.Variable, (double)result.Values[i]));
                 }
 
-                for (int i = 0; i < ExecutionResult.Count; i++)
-                {
-                    ResultsListBox.SelectedIndex = i;
-                    using (var bmp = new Bitmap(ResultsChart.ClientSize.Width, ResultsChart.ClientSize.Height))
-                    {
-                        ResultsChart.DrawToBitmap(bmp, new Rectangle(0, 0, ResultsChart.ClientSize.Width, ResultsChart.ClientSize.Height));
-                        var type = ExecutionResult.Title(i);
-                        foreach (var c in Path.GetInvalidFileNameChars()) type = type.Replace(c, '-');
-                        bmp.Save("Graph [" + type + "].png", ImageFormat.Png);
-                    }
-                }
+                GraphDirty = true;
             }
             catch (Exception ex)
             {
-                MessageBox.Show(this, ex.ToString(), "Error: Can not export results.",
-                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LogQueue.Put("Error: Can not finish thread execution." + Environment.NewLine + ex.ToString());
             }
         }
     }

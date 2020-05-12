@@ -31,10 +31,11 @@
             this.components = new System.ComponentModel.Container();
             System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
             System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.ResultsChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.ExecutableTextBox = new System.Windows.Forms.TextBox();
             this.ControlsSplitContainer = new System.Windows.Forms.SplitContainer();
+            this.label11 = new System.Windows.Forms.Label();
+            this.ThreadsNumeric = new System.Windows.Forms.NumericUpDown();
             this.ExportButton = new System.Windows.Forms.Button();
             this.label10 = new System.Windows.Forms.Label();
             this.NameTextBox = new System.Windows.Forms.TextBox();
@@ -60,14 +61,16 @@
             this.ChartTabPage = new System.Windows.Forms.TabPage();
             this.LogTabPage = new System.Windows.Forms.TabPage();
             this.LogTextBox = new System.Windows.Forms.TextBox();
-            this.MessagePump = new System.Windows.Forms.Timer(this.components);
-            this.ChartPropertyGrid = new System.Windows.Forms.PropertyGrid();
             this.ConfigTabPage = new System.Windows.Forms.TabPage();
+            this.ChartPropertyGrid = new System.Windows.Forms.PropertyGrid();
+            this.MessagePump = new System.Windows.Forms.Timer(this.components);
+            this.ThreadsManager = new System.Windows.Forms.Timer(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.ResultsChart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ControlsSplitContainer)).BeginInit();
             this.ControlsSplitContainer.Panel1.SuspendLayout();
             this.ControlsSplitContainer.Panel2.SuspendLayout();
             this.ControlsSplitContainer.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.ThreadsNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.IntervalNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.HigherNumeric)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.StepNumeric)).BeginInit();
@@ -102,11 +105,6 @@
             this.ResultsChart.Location = new System.Drawing.Point(3, 3);
             this.ResultsChart.Name = "ResultsChart";
             this.ResultsChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Excel;
-            series1.ChartArea = "ChartArea1";
-            series1.ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line;
-            series1.Legend = "Legend1";
-            series1.Name = "Series1";
-            this.ResultsChart.Series.Add(series1);
             this.ResultsChart.Size = new System.Drawing.Size(777, 513);
             this.ResultsChart.TabIndex = 0;
             this.ResultsChart.Text = "chart1";
@@ -130,6 +128,8 @@
             // 
             // ControlsSplitContainer.Panel1
             // 
+            this.ControlsSplitContainer.Panel1.Controls.Add(this.label11);
+            this.ControlsSplitContainer.Panel1.Controls.Add(this.ThreadsNumeric);
             this.ControlsSplitContainer.Panel1.Controls.Add(this.ExportButton);
             this.ControlsSplitContainer.Panel1.Controls.Add(this.label10);
             this.ControlsSplitContainer.Panel1.Controls.Add(this.NameTextBox);
@@ -159,6 +159,39 @@
             this.ControlsSplitContainer.Size = new System.Drawing.Size(1065, 549);
             this.ControlsSplitContainer.SplitterDistance = 266;
             this.ControlsSplitContainer.TabIndex = 4;
+            // 
+            // label11
+            // 
+            this.label11.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(181, 477);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(46, 13);
+            this.label11.TabIndex = 19;
+            this.label11.Text = "Threads";
+            // 
+            // ThreadsNumeric
+            // 
+            this.ThreadsNumeric.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.ThreadsNumeric.Location = new System.Drawing.Point(184, 493);
+            this.ThreadsNumeric.Maximum = new decimal(new int[] {
+            10000,
+            0,
+            0,
+            0});
+            this.ThreadsNumeric.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.ThreadsNumeric.Name = "ThreadsNumeric";
+            this.ThreadsNumeric.Size = new System.Drawing.Size(75, 20);
+            this.ThreadsNumeric.TabIndex = 18;
+            this.ThreadsNumeric.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
             // 
             // ExportButton
             // 
@@ -218,7 +251,7 @@
             0,
             -2147483648});
             this.IntervalNumeric.Name = "IntervalNumeric";
-            this.IntervalNumeric.Size = new System.Drawing.Size(256, 20);
+            this.IntervalNumeric.Size = new System.Drawing.Size(175, 20);
             this.IntervalNumeric.TabIndex = 14;
             this.IntervalNumeric.ValueChanged += new System.EventHandler(this.IntervalNumeric_ValueChanged);
             // 
@@ -343,21 +376,9 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.ResultsListBox.FormattingEnabled = true;
-            this.ResultsListBox.Items.AddRange(new object[] {
-            "Total received packets",
-            "Total received flits",
-            "Received/Ideal flits Ratio",
-            "Last time flit received",
-            "Global average delay (cycles)",
-            "Max delay (cycles)",
-            "Network throughput (flits/cycle)",
-            "Average IP throughput (flits/cycle/IP)",
-            "Total energy (J)",
-            "Dynamic energy (J)",
-            "Static energy (J)"});
             this.ResultsListBox.Location = new System.Drawing.Point(3, 250);
             this.ResultsListBox.Name = "ResultsListBox";
-            this.ResultsListBox.Size = new System.Drawing.Size(256, 147);
+            this.ResultsListBox.Size = new System.Drawing.Size(256, 173);
             this.ResultsListBox.TabIndex = 1;
             this.ResultsListBox.SelectedIndexChanged += new System.EventHandler(this.ResultsListBox_SelectedIndexChanged);
             // 
@@ -462,10 +483,15 @@
             this.LogTextBox.Size = new System.Drawing.Size(777, 513);
             this.LogTextBox.TabIndex = 0;
             // 
-            // MessagePump
+            // ConfigTabPage
             // 
-            this.MessagePump.Enabled = true;
-            this.MessagePump.Tick += new System.EventHandler(this.MessagePump_Tick);
+            this.ConfigTabPage.Controls.Add(this.ChartPropertyGrid);
+            this.ConfigTabPage.Location = new System.Drawing.Point(4, 22);
+            this.ConfigTabPage.Name = "ConfigTabPage";
+            this.ConfigTabPage.Size = new System.Drawing.Size(783, 519);
+            this.ConfigTabPage.TabIndex = 2;
+            this.ConfigTabPage.Text = "Chart configuratoin";
+            this.ConfigTabPage.UseVisualStyleBackColor = true;
             // 
             // ChartPropertyGrid
             // 
@@ -476,15 +502,14 @@
             this.ChartPropertyGrid.Size = new System.Drawing.Size(783, 519);
             this.ChartPropertyGrid.TabIndex = 1;
             // 
-            // ConfigTabPage
+            // MessagePump
             // 
-            this.ConfigTabPage.Controls.Add(this.ChartPropertyGrid);
-            this.ConfigTabPage.Location = new System.Drawing.Point(4, 22);
-            this.ConfigTabPage.Name = "ConfigTabPage";
-            this.ConfigTabPage.Size = new System.Drawing.Size(783, 519);
-            this.ConfigTabPage.TabIndex = 2;
-            this.ConfigTabPage.Text = "Chart configuratoin";
-            this.ConfigTabPage.UseVisualStyleBackColor = true;
+            this.MessagePump.Enabled = true;
+            this.MessagePump.Tick += new System.EventHandler(this.MessagePump_Tick);
+            // 
+            // ThreadsManager
+            // 
+            this.ThreadsManager.Tick += new System.EventHandler(this.ThreadsManager_Tick);
             // 
             // RunnerForm
             // 
@@ -501,6 +526,7 @@
             this.ControlsSplitContainer.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.ControlsSplitContainer)).EndInit();
             this.ControlsSplitContainer.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.ThreadsNumeric)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.IntervalNumeric)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.HigherNumeric)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.StepNumeric)).EndInit();
@@ -547,6 +573,9 @@
         private System.Windows.Forms.Button ExportButton;
         private System.Windows.Forms.TabPage ConfigTabPage;
         private System.Windows.Forms.PropertyGrid ChartPropertyGrid;
+        private System.Windows.Forms.Label label11;
+        private System.Windows.Forms.NumericUpDown ThreadsNumeric;
+        private System.Windows.Forms.Timer ThreadsManager;
     }
 }
 
