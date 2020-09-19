@@ -32,6 +32,8 @@ namespace NoximAutoRunner
         private List<BackgroundWorker> ExecutionWorkers = new List<BackgroundWorker>();
         private bool GraphDirty = false;
 
+        private string HorizontalAxisName;
+
         private Dictionary<string, List<PointD>[]> ExecutionResults;
 
         private string ExecutablePath;
@@ -90,6 +92,36 @@ namespace NoximAutoRunner
         }
         private string SettingsPath;
 
+        private void SetBackColor1(Color color)
+        {
+            ResultsChart.BackColor = color;
+        }
+        private void SetBackColor2(Color color)
+        {
+            ResultsChart.BorderSkin.BackColor = color;
+            ResultsChart.Legends[0].BackColor = color;
+            ResultsChart.ChartAreas[0].BackColor = color;
+        }
+        private Color GetBackColor1()
+        {
+            return ResultsChart.BackColor;
+        }
+        private Color GetBackColor2()
+        {
+            return ResultsChart.BorderSkin.BackColor;
+        }
+        private static ChartDashStyle NextStyle(ChartDashStyle ds)
+        {
+            switch (ds)
+            {
+                case ChartDashStyle.Solid: return ChartDashStyle.Dash;
+                case ChartDashStyle.Dash: return ChartDashStyle.Dot;
+                case ChartDashStyle.Dot: return ChartDashStyle.DashDot;
+                case ChartDashStyle.DashDot: return ChartDashStyle.DashDotDot;
+                case ChartDashStyle.DashDotDot: return ChartDashStyle.Solid;
+                default: return ChartDashStyle.Solid;
+            }
+        }
         private void BuildGraph()
         {
             GraphDirty = false;
@@ -98,19 +130,32 @@ namespace NoximAutoRunner
             int ind = ResultsListBox.SelectedIndex;
             ResultsChart.ChartAreas[0].AxisY.Title = ResultsListBox.SelectedItem as string;
             var results = ExecutionResults[ResultsListBox.SelectedItem as string];
+
+            var dash_style = ChartDashStyle.Solid;
             for (int i = 0; i < GroupsCount; i++)
             {
                 var series = new Series();
                 series.ChartType = SeriesChartType.Line;
                 series.Name = ExecutionNames[i];
                 series.BorderWidth = 3;
-
+                series.BorderDashStyle = dash_style;
+                dash_style = NextStyle(dash_style);
+                
                 for (int j = 0; j < results[i].Count; j++)
                 {
-                    series.Points.AddXY(results[i][j].X, results[i][j].Y);
+                    if (ArgumentComboBox.SelectedIndex == 0)
+                    {
+                        series.Points.AddXY(results[i][j].X, results[i][j].Y);
+                    }
+                    else
+                    {
+                        var arguments = ExecutionResults[ArgumentComboBox.SelectedItem as string];
+                        series.Points.AddXY(arguments[i][j].Y, results[i][j].Y);
+                    }
                 }
                 ResultsChart.Series.Add(series);
             }
+
             ResultsChart.ResetAutoValues();
         }
 
@@ -118,6 +163,7 @@ namespace NoximAutoRunner
         {
             InitializeComponent();
             SettingsPath = Path.GetFullPath(Path.Combine(Directory.GetCurrentDirectory(), "config.ini"));
+            ArgumentComboBox.SelectedIndex = 0;
 
             try
             {
@@ -132,7 +178,20 @@ namespace NoximAutoRunner
                         LowerNumeric.Value = decimal.Parse(file.ReadLine());
                         StepNumeric.Value = decimal.Parse(file.ReadLine());
                         HigherNumeric.Value = decimal.Parse(file.ReadLine());
-                        NameTextBox.Text = file.ReadLine();
+                        HorizontalAxisName = NameTextBox.Text = file.ReadLine();
+                        SetBackColor1(Color.FromArgb(int.Parse(file.ReadLine())));
+                        SetBackColor2(Color.FromArgb(int.Parse(file.ReadLine())));
+                        ResultsChart.Palette = (ChartColorPalette)Enum.Parse(typeof(ChartColorPalette), file.ReadLine());
+                        int count = int.Parse(file.ReadLine());
+                        var colors = new Color[count];
+                        for (int i = 0; i < count; i++)
+                            colors[i] = Color.FromArgb(int.Parse(file.ReadLine()));
+                        ResultsChart.PaletteCustomColors = colors;
+                        IntervalNumeric.Value = decimal.Parse(file.ReadLine());
+                        ThreadsNumeric.Value = decimal.Parse(file.ReadLine());
+                        AxisTitleFSNumeric.Value = decimal.Parse(file.ReadLine());
+                        AxisLabelsFSNumeric.Value = decimal.Parse(file.ReadLine());
+                        LegendsFSNumeric.Value = decimal.Parse(file.ReadLine());
                     }
                 }
             }
@@ -151,6 +210,9 @@ namespace NoximAutoRunner
                 GroupsCount = configs.Length;
                 ExecutionResults = new Dictionary<string, List<PointD>[]>();
                 ResultsListBox.Items.Clear();
+                ArgumentComboBox.Items.Clear();
+                ArgumentComboBox.Items.Add("Input variable");
+                ArgumentComboBox.SelectedIndex = 0;
                 ExecutionNames = new string[GroupsCount];
                 ExecutionConfigs = new string[GroupsCount];
 
@@ -163,6 +225,7 @@ namespace NoximAutoRunner
                 ExecutablePath = ExecutableTextBox.Text;
 
                 StartButton.Enabled = false;
+                StopButton.Enabled = true;
                 ThreadsManager.Start();
                 BuildGraph();
             }
@@ -172,7 +235,111 @@ namespace NoximAutoRunner
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+        private void StopButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                StartButton.Enabled = true;
+                StopButton.Enabled = false;
+                ThreadsManager.Stop();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.ToString(), "Error: Can not stop execution.",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 
+        private void ImportButton_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                ImportFileDialog.InitialDirectory = Directory.GetCurrentDirectory();
+                if (ImportFileDialog.ShowDialog(this) != DialogResult.OK) return;
+                using (var file = File.OpenText(ImportFileDialog.FileName))
+                {
+                    GroupsCount = 0;
+                    ExecutionResults = new Dictionary<string, List<PointD>[]>();
+                    ResultsListBox.Items.Clear();
+                    ArgumentComboBox.Items.Clear();
+                    ArgumentComboBox.Items.Add("Input variable");
+                    ArgumentComboBox.SelectedIndex = 0;
+
+                    int accumulated = 0;
+                    string legend = "";
+                    var legends = file.ReadLine().Split('\t');
+
+                    foreach (var l in legends)
+                    {
+                        if (legend == l) accumulated++;
+                        else if (legend != "")
+                        {
+                            var array = new List<PointD>[accumulated];
+                            for (int i = 0; i < array.Length; i++) array[i] = new List<PointD>();
+                            ExecutionResults.Add(legend, array);
+                            ResultsListBox.Items.Add(legend);
+                            ArgumentComboBox.Items.Add(legend);
+
+                            if (accumulated > GroupsCount) GroupsCount = accumulated;
+                            legend = l;
+                            accumulated = 1;
+                        }
+                        else
+                        {
+                            legend = l;
+                            accumulated = 1;
+                        }
+                    }
+
+                    ExecutionNames = new string[GroupsCount];
+
+                    var groups = file.ReadLine().Split('\t');
+
+                    NameTextBox.Text = groups[0];
+                    for (int i = 2; i < GroupsCount + 2; i++)
+                    {
+                        ExecutionNames[i - 2] = groups[i];
+                    }
+
+                    ExecutionLowerBound = decimal.MaxValue;
+                    ExecutionHigherBound = decimal.MinValue;
+                    int count = 0;
+                    while (!file.EndOfStream)
+                    {
+                        count++;
+                        var values = file.ReadLine().Split('\t');
+                        var argument = decimal.Parse(values[0]);
+
+                        if (argument < ExecutionLowerBound) ExecutionLowerBound = argument;
+                        if (argument > ExecutionHigherBound) ExecutionHigherBound = argument;
+                        
+                        int i = 0;
+                        foreach (var l in ExecutionResults)
+                        {
+                            for (int j = 0; j < GroupsCount; j++)
+                            {
+                                int ind = 2 + i * (GroupsCount + 1);
+                                decimal value;
+                                if (decimal.TryParse(values[ind], out value))
+                                    l.Value[j].Add(new PointD((double)argument, (double)value));
+                            }
+                            i++;
+                        }
+                    }
+
+                    LowerNumeric.Value = ExecutionLowerBound;
+                    HigherNumeric.Value = ExecutionHigherBound;
+                    StepNumeric.Value = ExecutionStep = (ExecutionHigherBound - ExecutionLowerBound) / (count - 1);
+
+                    BuildGraph();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.ToString(), "Error: Can not import results.",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
         private void ExportButton_Click(object sender, EventArgs e)
         {
             if (ExecutionResults == null || GroupsCount == 0 || ExecutionStep == 0) return;
@@ -249,17 +416,35 @@ namespace NoximAutoRunner
             decimal val = IntervalNumeric.Value;
             int count = 0;
             var sp = val.ToString().Split('.');
-            if (sp.Length == 2) count = sp[1].Length;
-            while (sp[1][count - 1] == '0') count--;
+            if (sp.Length == 2)
+            {
+                count = sp[1].Length;
+                while (count > 0 && sp[1][count - 1] == '0') count--;
+            }
             ResultsChart.ChartAreas[0].AxisX.LabelStyle.Format = "F" + count;
         }
         private void ResultsListBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             BuildGraph();
         }
+        private void ArgumentComboBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (ArgumentComboBox.SelectedIndex == 0)
+            {
+                NameTextBox.ReadOnly = false;
+                NameTextBox.Text = HorizontalAxisName;
+            }
+            else
+            {
+                NameTextBox.ReadOnly = true;
+                NameTextBox.Text = ArgumentComboBox.SelectedItem as string;
+            }
+        }
         private void NameTextBox_TextChanged(object sender, EventArgs e)
         {
             ResultsChart.ChartAreas[0].AxisX.Title = NameTextBox.Text;
+            if (!NameTextBox.ReadOnly) HorizontalAxisName = NameTextBox.Text;
+            BuildGraph();
         }
 
         private void RunnerForm_FormClosing(object sender, FormClosingEventArgs e)
@@ -275,7 +460,18 @@ namespace NoximAutoRunner
                     file.WriteLine(LowerNumeric.Value);
                     file.WriteLine(StepNumeric.Value);
                     file.WriteLine(HigherNumeric.Value);
-                    file.WriteLine(NameTextBox.Text);
+                    file.WriteLine(HorizontalAxisName);
+                    file.WriteLine(GetBackColor1().ToArgb());
+                    file.WriteLine(GetBackColor2().ToArgb());
+                    file.WriteLine(ResultsChart.Palette);
+                    file.WriteLine(ResultsChart.PaletteCustomColors.Length);
+                    for (int i = 0; i < ResultsChart.PaletteCustomColors.Length; i++)
+                        file.WriteLine(ResultsChart.PaletteCustomColors[i].ToArgb());
+                    file.WriteLine(IntervalNumeric.Value);
+                    file.WriteLine(ThreadsNumeric.Value);
+                    file.WriteLine(AxisTitleFSNumeric.Value);
+                    file.WriteLine(AxisLabelsFSNumeric.Value);
+                    file.WriteLine(LegendsFSNumeric.Value);
                 }
             }
             catch (Exception ex)
@@ -337,9 +533,9 @@ namespace NoximAutoRunner
             if (!enquire_next)
             {
                 StartButton.Enabled = true;
+                StopButton.Enabled = false;
                 ThreadsManager.Stop();
             }
-
         }
         private void MessagePump_Tick(object sender, EventArgs e)
         {
@@ -359,7 +555,7 @@ namespace NoximAutoRunner
             p.StartInfo.FileName = args.Executable;
             p.StartInfo.Arguments = "-config " + "\"" + args.Config + "\" " + args.Arguments.Replace("%VAR", args.Variable.ToString());
             p.StartInfo.WorkingDirectory = Path.GetDirectoryName(args.Executable);
-
+            
             LogQueue.Put("Starting execution with arguments [" + p.StartInfo.Arguments + "]...");
             p.Start();
             string s = p.StandardOutput.ReadToEnd();
@@ -370,6 +566,7 @@ namespace NoximAutoRunner
             LogQueue.Put("Execution with arguments [" + p.StartInfo.Arguments + "] finished.");
 
         }
+
         private void ExecutionWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
             try
@@ -387,6 +584,10 @@ namespace NoximAutoRunner
                         var item = ResultsListBox.SelectedItem;
                         ResultsListBox.Items.Add(result.Legends[i]);
                         ResultsListBox.SelectedItem = item;
+
+                        var itemc = ArgumentComboBox.SelectedItem;
+                        ArgumentComboBox.Items.Add(result.Legends[i]);
+                        ArgumentComboBox.SelectedItem = itemc;
                     }
 
                     var group = ExecutionResults[result.Legends[i]][result.Group];
@@ -394,7 +595,7 @@ namespace NoximAutoRunner
                     int index = group.Count;
                     while (index - 1 >= 0 && group[index - 1].X > result.Variable) index--;
 
-                    group.Insert(index, new PointD(result.Variable, (double)result.Values[i]));
+                    group.Insert(index, new PointD(result.Variable, result.Values[i]));
                 }
 
                 GraphDirty = true;
@@ -403,6 +604,30 @@ namespace NoximAutoRunner
             {
                 LogQueue.Put("Error: Can not finish thread execution." + Environment.NewLine + ex.ToString());
             }
+        }
+
+        private void Color1Button_Click(object sender, EventArgs e)
+        {
+            ChooseColorDialog.Color = GetBackColor1();
+            ChooseColorDialog.ShowDialog(this);
+            SetBackColor1(ChooseColorDialog.Color);
+        }
+        private void Color2Button_Click(object sender, EventArgs e)
+        {
+            ChooseColorDialog.Color = GetBackColor2();
+            ChooseColorDialog.ShowDialog(this);
+            SetBackColor2(ChooseColorDialog.Color);
+        }
+        private void FontSizeNumeric_ValueChanged(object sender, EventArgs e)
+        {
+            ResultsChart.ChartAreas[0].Axes[0].TitleFont = new Font(ResultsChart.ChartAreas[0].Axes[0].TitleFont.FontFamily, (int)AxisTitleFSNumeric.Value);
+            ResultsChart.ChartAreas[0].Axes[1].TitleFont = new Font(ResultsChart.ChartAreas[0].Axes[1].TitleFont.FontFamily, (int)AxisTitleFSNumeric.Value);
+            ResultsChart.ChartAreas[0].Axes[0].LabelAutoFitMinFontSize = (int)AxisLabelsFSNumeric.Value;
+            ResultsChart.ChartAreas[0].Axes[0].LabelAutoFitMaxFontSize = (int)AxisLabelsFSNumeric.Value;
+            ResultsChart.ChartAreas[0].Axes[1].LabelAutoFitMinFontSize = (int)AxisLabelsFSNumeric.Value;
+            ResultsChart.ChartAreas[0].Axes[1].LabelAutoFitMaxFontSize = (int)AxisLabelsFSNumeric.Value;
+            ResultsChart.Legends[0].Font = new Font(ResultsChart.Legends[0].Font.FontFamily, (int)LegendsFSNumeric.Value);
+            BuildGraph();
         }
     }
 }

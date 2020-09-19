@@ -29,11 +29,14 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
             this.ResultsChart = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.ExecutableTextBox = new System.Windows.Forms.TextBox();
             this.ControlsSplitContainer = new System.Windows.Forms.SplitContainer();
+            this.ImportButton = new System.Windows.Forms.Button();
+            this.StopButton = new System.Windows.Forms.Button();
+            this.ArgumentComboBox = new System.Windows.Forms.ComboBox();
             this.label11 = new System.Windows.Forms.Label();
             this.ThreadsNumeric = new System.Windows.Forms.NumericUpDown();
             this.ExportButton = new System.Windows.Forms.Button();
@@ -63,8 +66,19 @@
             this.LogTextBox = new System.Windows.Forms.TextBox();
             this.ConfigTabPage = new System.Windows.Forms.TabPage();
             this.ChartPropertyGrid = new System.Windows.Forms.PropertyGrid();
+            this.ViewTabPage = new System.Windows.Forms.TabPage();
+            this.Color2Button = new System.Windows.Forms.Button();
+            this.Color1Button = new System.Windows.Forms.Button();
             this.MessagePump = new System.Windows.Forms.Timer(this.components);
             this.ThreadsManager = new System.Windows.Forms.Timer(this.components);
+            this.ChooseColorDialog = new System.Windows.Forms.ColorDialog();
+            this.ImportFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.label12 = new System.Windows.Forms.Label();
+            this.AxisTitleFSNumeric = new System.Windows.Forms.NumericUpDown();
+            this.LegendsFSNumeric = new System.Windows.Forms.NumericUpDown();
+            this.label13 = new System.Windows.Forms.Label();
+            this.AxisLabelsFSNumeric = new System.Windows.Forms.NumericUpDown();
+            this.label14 = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.ResultsChart)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.ControlsSplitContainer)).BeginInit();
             this.ControlsSplitContainer.Panel1.SuspendLayout();
@@ -79,29 +93,47 @@
             this.ChartTabPage.SuspendLayout();
             this.LogTabPage.SuspendLayout();
             this.ConfigTabPage.SuspendLayout();
+            this.ViewTabPage.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.AxisTitleFSNumeric)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.LegendsFSNumeric)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AxisLabelsFSNumeric)).BeginInit();
             this.SuspendLayout();
             // 
             // ResultsChart
             // 
             this.ResultsChart.BackColor = System.Drawing.Color.DimGray;
-            chartArea1.AxisX.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
-            chartArea1.AxisX.LabelStyle.Format = "F2";
-            chartArea1.AxisX.MaximumAutoSize = 10F;
-            chartArea1.AxisX.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 16F);
-            chartArea1.AxisX2.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
-            chartArea1.AxisX2.MaximumAutoSize = 10F;
-            chartArea1.AxisY.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
-            chartArea1.AxisY.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 16F);
-            chartArea1.AxisY2.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
-            chartArea1.BackColor = System.Drawing.Color.Gray;
-            chartArea1.Name = "ChartArea1";
-            this.ResultsChart.ChartAreas.Add(chartArea1);
+            chartArea2.AxisX.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
+            chartArea2.AxisX.LabelAutoFitMaxFontSize = 20;
+            chartArea2.AxisX.LabelAutoFitMinFontSize = 16;
+            chartArea2.AxisX.LabelStyle.Format = "F2";
+            chartArea2.AxisX.MaximumAutoSize = 10F;
+            chartArea2.AxisX.Minimum = 0D;
+            chartArea2.AxisX.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 32F);
+            chartArea2.AxisX2.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
+            chartArea2.AxisX2.LabelAutoFitMinFontSize = 10;
+            chartArea2.AxisX2.MaximumAutoSize = 10F;
+            chartArea2.AxisX2.Minimum = 0D;
+            chartArea2.AxisX2.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 20F);
+            chartArea2.AxisY.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
+            chartArea2.AxisY.LabelAutoFitMaxFontSize = 20;
+            chartArea2.AxisY.LabelAutoFitMinFontSize = 16;
+            chartArea2.AxisY.Minimum = 0D;
+            chartArea2.AxisY.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 32F);
+            chartArea2.AxisY2.IntervalAutoMode = System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.VariableCount;
+            chartArea2.AxisY2.LabelAutoFitMinFontSize = 10;
+            chartArea2.AxisY2.Minimum = 0D;
+            chartArea2.AxisY2.TitleFont = new System.Drawing.Font("Microsoft Sans Serif", 20F);
+            chartArea2.BackColor = System.Drawing.Color.Gray;
+            chartArea2.Name = "ChartArea1";
+            this.ResultsChart.ChartAreas.Add(chartArea2);
             this.ResultsChart.Dock = System.Windows.Forms.DockStyle.Fill;
-            legend1.BackColor = System.Drawing.Color.Gray;
-            legend1.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F);
-            legend1.IsTextAutoFit = false;
-            legend1.Name = "Legend1";
-            this.ResultsChart.Legends.Add(legend1);
+            legend2.AutoFitMinFontSize = 20;
+            legend2.BackColor = System.Drawing.Color.Gray;
+            legend2.BorderDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.NotSet;
+            legend2.Font = new System.Drawing.Font("Microsoft Sans Serif", 20F);
+            legend2.IsTextAutoFit = false;
+            legend2.Name = "Legend1";
+            this.ResultsChart.Legends.Add(legend2);
             this.ResultsChart.Location = new System.Drawing.Point(3, 3);
             this.ResultsChart.Name = "ResultsChart";
             this.ResultsChart.Palette = System.Windows.Forms.DataVisualization.Charting.ChartColorPalette.Excel;
@@ -128,6 +160,9 @@
             // 
             // ControlsSplitContainer.Panel1
             // 
+            this.ControlsSplitContainer.Panel1.Controls.Add(this.ImportButton);
+            this.ControlsSplitContainer.Panel1.Controls.Add(this.StopButton);
+            this.ControlsSplitContainer.Panel1.Controls.Add(this.ArgumentComboBox);
             this.ControlsSplitContainer.Panel1.Controls.Add(this.label11);
             this.ControlsSplitContainer.Panel1.Controls.Add(this.ThreadsNumeric);
             this.ControlsSplitContainer.Panel1.Controls.Add(this.ExportButton);
@@ -159,6 +194,43 @@
             this.ControlsSplitContainer.Size = new System.Drawing.Size(1065, 549);
             this.ControlsSplitContainer.SplitterDistance = 266;
             this.ControlsSplitContainer.TabIndex = 4;
+            // 
+            // ImportButton
+            // 
+            this.ImportButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.ImportButton.Location = new System.Drawing.Point(149, 519);
+            this.ImportButton.Name = "ImportButton";
+            this.ImportButton.Size = new System.Drawing.Size(52, 23);
+            this.ImportButton.TabIndex = 21;
+            this.ImportButton.Text = "Import";
+            this.ImportButton.UseVisualStyleBackColor = true;
+            this.ImportButton.Click += new System.EventHandler(this.ImportButton_Click);
+            // 
+            // StopButton
+            // 
+            this.StopButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.StopButton.Enabled = false;
+            this.StopButton.Location = new System.Drawing.Point(75, 519);
+            this.StopButton.Name = "StopButton";
+            this.StopButton.Size = new System.Drawing.Size(66, 23);
+            this.StopButton.TabIndex = 20;
+            this.StopButton.Text = "Stop";
+            this.StopButton.UseVisualStyleBackColor = true;
+            this.StopButton.Click += new System.EventHandler(this.StopButton_Click);
+            // 
+            // ArgumentComboBox
+            // 
+            this.ArgumentComboBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.ArgumentComboBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.ArgumentComboBox.FormattingEnabled = true;
+            this.ArgumentComboBox.Items.AddRange(new object[] {
+            "Input variable"});
+            this.ArgumentComboBox.Location = new System.Drawing.Point(3, 414);
+            this.ArgumentComboBox.Name = "ArgumentComboBox";
+            this.ArgumentComboBox.Size = new System.Drawing.Size(256, 21);
+            this.ArgumentComboBox.TabIndex = 1;
+            this.ArgumentComboBox.SelectedIndexChanged += new System.EventHandler(this.ArgumentComboBox_SelectedIndexChanged);
             // 
             // label11
             // 
@@ -196,9 +268,9 @@
             // ExportButton
             // 
             this.ExportButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.ExportButton.Location = new System.Drawing.Point(184, 519);
+            this.ExportButton.Location = new System.Drawing.Point(207, 519);
             this.ExportButton.Name = "ExportButton";
-            this.ExportButton.Size = new System.Drawing.Size(75, 23);
+            this.ExportButton.Size = new System.Drawing.Size(52, 23);
             this.ExportButton.TabIndex = 17;
             this.ExportButton.Text = "Export";
             this.ExportButton.UseVisualStyleBackColor = true;
@@ -208,7 +280,7 @@
             // 
             this.label10.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label10.AutoSize = true;
-            this.label10.Location = new System.Drawing.Point(3, 438);
+            this.label10.Location = new System.Drawing.Point(0, 438);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(104, 13);
             this.label10.TabIndex = 16;
@@ -378,7 +450,7 @@
             this.ResultsListBox.FormattingEnabled = true;
             this.ResultsListBox.Location = new System.Drawing.Point(3, 250);
             this.ResultsListBox.Name = "ResultsListBox";
-            this.ResultsListBox.Size = new System.Drawing.Size(256, 173);
+            this.ResultsListBox.Size = new System.Drawing.Size(256, 160);
             this.ResultsListBox.TabIndex = 1;
             this.ResultsListBox.SelectedIndexChanged += new System.EventHandler(this.ResultsListBox_SelectedIndexChanged);
             // 
@@ -387,7 +459,7 @@
             this.StartButton.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.StartButton.Location = new System.Drawing.Point(3, 519);
             this.StartButton.Name = "StartButton";
-            this.StartButton.Size = new System.Drawing.Size(75, 23);
+            this.StartButton.Size = new System.Drawing.Size(66, 23);
             this.StartButton.TabIndex = 1;
             this.StartButton.Text = "Start";
             this.StartButton.UseVisualStyleBackColor = true;
@@ -443,6 +515,7 @@
             this.ResultTabControl.Controls.Add(this.ChartTabPage);
             this.ResultTabControl.Controls.Add(this.LogTabPage);
             this.ResultTabControl.Controls.Add(this.ConfigTabPage);
+            this.ResultTabControl.Controls.Add(this.ViewTabPage);
             this.ResultTabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ResultTabControl.Location = new System.Drawing.Point(0, 0);
             this.ResultTabControl.Name = "ResultTabControl";
@@ -502,6 +575,43 @@
             this.ChartPropertyGrid.Size = new System.Drawing.Size(783, 519);
             this.ChartPropertyGrid.TabIndex = 1;
             // 
+            // ViewTabPage
+            // 
+            this.ViewTabPage.Controls.Add(this.AxisLabelsFSNumeric);
+            this.ViewTabPage.Controls.Add(this.label14);
+            this.ViewTabPage.Controls.Add(this.LegendsFSNumeric);
+            this.ViewTabPage.Controls.Add(this.label13);
+            this.ViewTabPage.Controls.Add(this.AxisTitleFSNumeric);
+            this.ViewTabPage.Controls.Add(this.label12);
+            this.ViewTabPage.Controls.Add(this.Color2Button);
+            this.ViewTabPage.Controls.Add(this.Color1Button);
+            this.ViewTabPage.Location = new System.Drawing.Point(4, 22);
+            this.ViewTabPage.Name = "ViewTabPage";
+            this.ViewTabPage.Size = new System.Drawing.Size(783, 519);
+            this.ViewTabPage.TabIndex = 3;
+            this.ViewTabPage.Text = "View";
+            this.ViewTabPage.UseVisualStyleBackColor = true;
+            // 
+            // Color2Button
+            // 
+            this.Color2Button.Location = new System.Drawing.Point(84, 3);
+            this.Color2Button.Name = "Color2Button";
+            this.Color2Button.Size = new System.Drawing.Size(75, 23);
+            this.Color2Button.TabIndex = 1;
+            this.Color2Button.Text = "Color 2";
+            this.Color2Button.UseVisualStyleBackColor = true;
+            this.Color2Button.Click += new System.EventHandler(this.Color2Button_Click);
+            // 
+            // Color1Button
+            // 
+            this.Color1Button.Location = new System.Drawing.Point(3, 3);
+            this.Color1Button.Name = "Color1Button";
+            this.Color1Button.Size = new System.Drawing.Size(75, 23);
+            this.Color1Button.TabIndex = 0;
+            this.Color1Button.Text = "Color 1";
+            this.Color1Button.UseVisualStyleBackColor = true;
+            this.Color1Button.Click += new System.EventHandler(this.Color1Button_Click);
+            // 
             // MessagePump
             // 
             this.MessagePump.Enabled = true;
@@ -510,6 +620,97 @@
             // ThreadsManager
             // 
             this.ThreadsManager.Tick += new System.EventHandler(this.ThreadsManager_Tick);
+            // 
+            // ImportFileDialog
+            // 
+            this.ImportFileDialog.FileName = "exports.txt";
+            // 
+            // label12
+            // 
+            this.label12.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label12.AutoSize = true;
+            this.label12.Location = new System.Drawing.Point(0, 480);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(87, 13);
+            this.label12.TabIndex = 2;
+            this.label12.Text = "Axis title font size";
+            // 
+            // AxisTitleFSNumeric
+            // 
+            this.AxisTitleFSNumeric.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.AxisTitleFSNumeric.Location = new System.Drawing.Point(3, 496);
+            this.AxisTitleFSNumeric.Minimum = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            this.AxisTitleFSNumeric.Name = "AxisTitleFSNumeric";
+            this.AxisTitleFSNumeric.Size = new System.Drawing.Size(94, 20);
+            this.AxisTitleFSNumeric.TabIndex = 3;
+            this.AxisTitleFSNumeric.Value = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            this.AxisTitleFSNumeric.ValueChanged += new System.EventHandler(this.FontSizeNumeric_ValueChanged);
+            // 
+            // LegendsFSNumeric
+            // 
+            this.LegendsFSNumeric.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.LegendsFSNumeric.Location = new System.Drawing.Point(204, 496);
+            this.LegendsFSNumeric.Minimum = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            this.LegendsFSNumeric.Name = "LegendsFSNumeric";
+            this.LegendsFSNumeric.Size = new System.Drawing.Size(94, 20);
+            this.LegendsFSNumeric.TabIndex = 5;
+            this.LegendsFSNumeric.Value = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            this.LegendsFSNumeric.ValueChanged += new System.EventHandler(this.FontSizeNumeric_ValueChanged);
+            // 
+            // label13
+            // 
+            this.label13.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label13.AutoSize = true;
+            this.label13.Location = new System.Drawing.Point(201, 480);
+            this.label13.Name = "label13";
+            this.label13.Size = new System.Drawing.Size(90, 13);
+            this.label13.TabIndex = 4;
+            this.label13.Text = "Legends font size";
+            // 
+            // AxisLabelsFSNumeric
+            // 
+            this.AxisLabelsFSNumeric.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.AxisLabelsFSNumeric.Location = new System.Drawing.Point(103, 496);
+            this.AxisLabelsFSNumeric.Minimum = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            this.AxisLabelsFSNumeric.Name = "AxisLabelsFSNumeric";
+            this.AxisLabelsFSNumeric.Size = new System.Drawing.Size(95, 20);
+            this.AxisLabelsFSNumeric.TabIndex = 7;
+            this.AxisLabelsFSNumeric.Value = new decimal(new int[] {
+            5,
+            0,
+            0,
+            0});
+            this.AxisLabelsFSNumeric.ValueChanged += new System.EventHandler(this.FontSizeNumeric_ValueChanged);
+            // 
+            // label14
+            // 
+            this.label14.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label14.AutoSize = true;
+            this.label14.Location = new System.Drawing.Point(100, 480);
+            this.label14.Name = "label14";
+            this.label14.Size = new System.Drawing.Size(98, 13);
+            this.label14.TabIndex = 6;
+            this.label14.Text = "Axis labels font size";
             // 
             // RunnerForm
             // 
@@ -536,6 +737,11 @@
             this.LogTabPage.ResumeLayout(false);
             this.LogTabPage.PerformLayout();
             this.ConfigTabPage.ResumeLayout(false);
+            this.ViewTabPage.ResumeLayout(false);
+            this.ViewTabPage.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.AxisTitleFSNumeric)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.LegendsFSNumeric)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.AxisLabelsFSNumeric)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -576,6 +782,20 @@
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.NumericUpDown ThreadsNumeric;
         private System.Windows.Forms.Timer ThreadsManager;
+        private System.Windows.Forms.ComboBox ArgumentComboBox;
+        private System.Windows.Forms.Button StopButton;
+        private System.Windows.Forms.TabPage ViewTabPage;
+        private System.Windows.Forms.Button Color2Button;
+        private System.Windows.Forms.Button Color1Button;
+        private System.Windows.Forms.ColorDialog ChooseColorDialog;
+        private System.Windows.Forms.Button ImportButton;
+        private System.Windows.Forms.OpenFileDialog ImportFileDialog;
+        private System.Windows.Forms.NumericUpDown AxisTitleFSNumeric;
+        private System.Windows.Forms.Label label12;
+        private System.Windows.Forms.NumericUpDown AxisLabelsFSNumeric;
+        private System.Windows.Forms.Label label14;
+        private System.Windows.Forms.NumericUpDown LegendsFSNumeric;
+        private System.Windows.Forms.Label label13;
     }
 }
 
